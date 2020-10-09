@@ -575,12 +575,12 @@ class ConfigurationClassParser {
 		else {
 			this.importStack.push(configClass);
 			try {
-				//importCandidates为@Import中的value数组
+				// importCandidates为@Import中的value数组
 				for (SourceClass candidate : importCandidates) {
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
-						//实例化我们写的实现ImportSelector接口的类
+						// 实例化我们写的实现ImportSelector接口的类
 						ImportSelector selector = ParserStrategyUtils.instantiateClass(candidateClass, ImportSelector.class,
 								this.environment, this.resourceLoader, this.registry);
 						Predicate<String> selectorFilter = selector.getExclusionFilter();
@@ -591,7 +591,7 @@ class ConfigurationClassParser {
 							this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
 						}
 						else {
-							//调用selectImports方法返回我们需要注入到容器中bean数组
+							//调用selectImports方法返回我们需要注入到容器中beanName数组
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							//转为SourceClass集合
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);

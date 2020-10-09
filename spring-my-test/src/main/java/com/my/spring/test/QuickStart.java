@@ -14,15 +14,15 @@ import org.springframework.context.annotation.Lazy;
  * @author Zijian Liao
  * @since 1.0.0
  */
-@ComponentScan(basePackages = {"com.my.spring.test"}, lazyInit = true)
+@ComponentScan//(basePackages = {"com.my.spring.test"})
 @Configuration
 @Import(value = {MyImport.class, Bus.class})
 public class QuickStart extends SuperQuickStart{
 
-	@Bean(initMethod = "init")
-	public Car car(){
-		return new Car();
-	}
+//	@Bean(initMethod = "init")
+//	public Car car(){
+//		return new Car();
+//	}
 
 //	@Bean
 //	public Wheel wheel(){
@@ -31,9 +31,9 @@ public class QuickStart extends SuperQuickStart{
 
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(QuickStart.class);
-		Car car = context.getBean("car", Car.class);
-		Wheel wheel = context.getBean("wheel", Wheel.class);
-		System.out.println(wheel);
+//		Car car = context.getBean("car", Car.class);
+//		Wheel wheel = context.getBean("wheel", Wheel.class);
+//		System.out.println(wheel);
 
 	}
 

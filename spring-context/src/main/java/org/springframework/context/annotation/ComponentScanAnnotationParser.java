@@ -74,7 +74,8 @@ class ComponentScanAnnotationParser {
 
 
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
-		//重新new了一个classpath的bean定义扫描器，没用我们最开始创建的
+		// 重新new了一个classpath的bean定义扫描器，没用我们最开始创建的
+		// 这里添加了一个默认的过滤器，过滤@Component注解的
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 
@@ -120,6 +121,7 @@ class ComponentScanAnnotationParser {
 		for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {
 			basePackages.add(ClassUtils.getPackageName(clazz));
 		}
+		//如果为空，则默认使用当前配置类的包路径为扫描路径
 		if (basePackages.isEmpty()) {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}

@@ -274,27 +274,27 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
-			//找到所有候选的bean -> 标识了@Component注解的
+			// 找到所有候选的bean -> 默认过滤器为过滤标识了@Component注解的class
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
-					//设置默认值，比如上一个方法刚刚设置的是否懒加载
+					// 设置默认值，比如上一个方法刚刚设置的是否懒加载
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
-					//解析beanClass的所有注解填充到beanDefinition中，@Lazy @Primary @DependsOn @Role @Description
+					// 解析beanClass的所有注解填充到beanDefinition中，@Lazy @Primary @DependsOn @Role @Description
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
-				//检查之前是否注册过，未注册返回true
+				// 检查之前是否注册过，未注册返回true
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
-					//将beanDefinition注册到容器中
+					// 将beanDefinition注册到容器中
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}

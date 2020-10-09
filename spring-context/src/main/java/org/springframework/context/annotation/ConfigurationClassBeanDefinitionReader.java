@@ -142,7 +142,7 @@ class ConfigurationClassBeanDefinitionReader {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
-			//将beanMethod转化成BeanDefinition注册到容器的beanDefinitionMap中
+			// 将beanMethod转化成BeanDefinition注册到容器的beanDefinitionMap中
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 

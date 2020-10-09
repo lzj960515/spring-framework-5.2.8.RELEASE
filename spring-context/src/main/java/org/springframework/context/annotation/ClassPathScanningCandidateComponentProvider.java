@@ -416,10 +416,10 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
-			//将类路径替换成绝对路径
+			// 将类路径替换成绝对路径
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-			//找出该路径下的所有类资源
+			// 找出该路径下的所有类资源
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
@@ -430,18 +430,18 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (resource.isReadable()) {
 					try {
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
-						//调用刚刚配置的过滤器进行匹配，
-						//默认过滤器逻辑：是否标识了@Component注解（包括组合的，如@Service）
+						// 调用刚刚配置的过滤器进行匹配，
+						// 默认过滤器逻辑：是否标识了@Component注解（包括组合的，如@Service）
 						if (isCandidateComponent(metadataReader)) {
-							//通过扫描方式创建的BeanDefintion为ScannedGenericBeanDefinition
+							// 通过扫描方式创建的BeanDefintion为ScannedGenericBeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setSource(resource);
-							//不是接口和抽象类,或者是抽象类但标识了@Lookup
+							// 不是接口和抽象类,或者是抽象类但标识了@Lookup
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);
 								}
-								//将beanDefinition存到集合中
+								// 将beanDefinition存到集合中
 								candidates.add(sbd);
 							}
 							else {
