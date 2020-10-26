@@ -591,7 +591,7 @@ class ConfigurationClassParser {
 							this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
 						}
 						else {
-							//调用selectImports方法返回我们需要注入到容器中beanName数组
+							//调用selectImports方法返回我们需要装配到容器中beanName数组
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							//转为SourceClass集合
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);

@@ -291,8 +291,14 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		// 父类为InitDestroyAnnotationBeanPostProcessor
+		// 寻找@PostConstruct @PreDestroy注解的方法
+		// 用于bean的生命周期中初始化前的处理逻辑
 		super.postProcessMergedBeanDefinition(beanDefinition, beanType, beanName);
+		// 寻找@Resource注解标识的属性或方法元数据
+		// 将这些元数据保存到缓存中，用于在属性装配阶段使用
 		InjectionMetadata metadata = findResourceMetadata(beanName, beanType, null);
+		// 去重处理
 		metadata.checkConfigMembers(beanDefinition);
 	}
 
@@ -313,8 +319,10 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+		// 找到postProcessMergedBeanDefinition是解析出的元数据
 		InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), pvs);
 		try {
+			// 进行属性或方法装配
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (Throwable ex) {
@@ -336,6 +344,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		// Fall back to class name as cache key, for backwards compatibility with custom callers.
 		String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
 		// Quick check on the concurrent map first, with minimal locking.
+		// 从缓存中获取
+		// 调用postProcessMergedBeanDefinition方法时将元数据解析放入缓存
+		// 调用postProcessProperties方法时将元数据取出
 		InjectionMetadata metadata = this.injectionMetadataCache.get(cacheKey);
 		if (InjectionMetadata.needsRefresh(metadata, clazz)) {
 			synchronized (this.injectionMetadataCache) {
@@ -344,6 +355,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 					if (metadata != null) {
 						metadata.clear(pvs);
 					}
+					// 创建元数据，寻找@Resouce标识的属性或方法
 					metadata = buildResourceMetadata(clazz);
 					this.injectionMetadataCache.put(cacheKey, metadata);
 				}
@@ -353,6 +365,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	}
 
 	private InjectionMetadata buildResourceMetadata(final Class<?> clazz) {
+		// 判断是否为候选的class，不是则返回默认的空元数据
 		if (!AnnotationUtils.isCandidateClass(clazz, resourceAnnotationTypes)) {
 			return InjectionMetadata.EMPTY;
 		}
@@ -362,7 +375,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 		do {
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
-
+			// 循环所有的属性，判断属性是否存在WebServiceRef、EJB、Resource注解，有则构建元数据
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
 				if (webServiceRefClass != null && field.isAnnotationPresent(webServiceRefClass)) {
 					if (Modifier.isStatic(field.getModifiers())) {
@@ -385,7 +398,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 					}
 				}
 			});
-
+			// 与上一步相似，判断方法上是否存在这些注解
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
@@ -432,7 +445,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 			targetClass = targetClass.getSuperclass();
 		}
 		while (targetClass != null && targetClass != Object.class);
-
+		// 将构建好的元数据封装到InjectionMetadata中返回
 		return InjectionMetadata.forElements(elements, clazz);
 	}
 
@@ -494,6 +507,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 			throw new NoSuchBeanDefinitionException(element.lookupType,
 					"No resource factory configured - specify the 'resourceFactory' property");
 		}
+		// 获取bean
 		return autowireResource(this.resourceFactory, element, requestingBeanName);
 	}
 
@@ -524,6 +538,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 				}
 			}
 			else {
+				// 获取bean
 				resource = beanFactory.resolveBeanByName(name, descriptor);
 				autowiredBeanNames = Collections.singleton(name);
 			}

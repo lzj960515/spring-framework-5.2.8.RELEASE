@@ -152,8 +152,10 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// 取出在第四步解析@PostContrust @PreDestroy得到的元数据
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
 		try {
+			// 调用init方法（@PostConstruct标识的）
 			metadata.invokeInitMethods(bean, beanName);
 		}
 		catch (InvocationTargetException ex) {
@@ -322,6 +324,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 
 		public void invokeInitMethods(Object target, String beanName) throws Throwable {
+			// 只取init的元数据（还有destroy的）
 			Collection<LifecycleElement> checkedInitMethods = this.checkedInitMethods;
 			Collection<LifecycleElement> initMethodsToIterate =
 					(checkedInitMethods != null ? checkedInitMethods : this.initMethods);
@@ -386,6 +389,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 		public void invoke(Object target) throws Throwable {
 			ReflectionUtils.makeAccessible(this.method);
+			// 直接反射调用
 			this.method.invoke(target, (Object[]) null);
 		}
 

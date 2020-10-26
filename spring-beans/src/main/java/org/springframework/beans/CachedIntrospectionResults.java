@@ -243,6 +243,7 @@ public final class CachedIntrospectionResults {
 				return beanInfo;
 			}
 		}
+		// 解析出一个GenericBeanInfo，里面包含了方法，属性
 		return (shouldIntrospectorIgnoreBeaninfoClasses ?
 				Introspector.getBeanInfo(beanClass, Introspector.IGNORE_ALL_BEANINFO) :
 				Introspector.getBeanInfo(beanClass));
@@ -269,6 +270,8 @@ public final class CachedIntrospectionResults {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Getting BeanInfo for class [" + beanClass.getName() + "]");
 			}
+			// 获取bean信息，这里会根据beanClass解析出属性与方法
+			// 通过setXXX -> 得出 XXX属性，而不是通过field字段
 			this.beanInfo = getBeanInfo(beanClass);
 
 			if (logger.isTraceEnabled()) {

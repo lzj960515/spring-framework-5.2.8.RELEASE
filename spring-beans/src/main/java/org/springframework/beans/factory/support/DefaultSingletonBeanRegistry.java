@@ -137,6 +137,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
 			this.singletonObjects.put(beanName, singletonObject);
+			// 移除二三级缓存
 			this.singletonFactories.remove(beanName);
 			this.earlySingletonObjects.remove(beanName);
 			this.registeredSingletons.add(beanName);
@@ -178,14 +179,29 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// 从单例缓存池中获取
 		Object singletonObject = this.singletonObjects.get(beanName);
+		// 获取不到，判断bean是否正在创建
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			// 如果正在创建，有两种可能发生
+			// 1.线程一正在创建bean，线程二前来获取，此时由于同步锁，线程二将阻塞于此
+			// 线程一创建bean完毕，线程二进入同步代码块，但由于此时二三级缓存已被线程一创建bean完毕时清除
+			// 所以线程二在这里仍旧无法获取到bean，需要到创建bean时的步骤，那里会再次从一级缓存中获取
+			// 2.发生了循环依赖，由于同步锁的可重入性，此时线程一可进入同步代码块中
 			synchronized (this.singletonObjects) {
+				// 从早期对象缓存池中获取，一般这里不会有值，如果有值表示起码有三层以上依赖关系
+				// A 依赖 B; B 依赖 A,C; C 依赖 A
+				// A创建时将获取A对象函数放到三级缓存中，开始创建B对象
+				// B对象创建时从三级缓存中获取到早期对象A放到二级缓存中，开始创建C对象
+				// C对象创建时从二级缓存得到早期对象A
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				if (singletonObject == null && allowEarlyReference) {
+					// 从三级缓存中获取单例工厂
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
+						// 调用回调方法获取早期bean
 						singletonObject = singletonFactory.getObject();
+						// 将早期对象放到二级缓存，移除三级缓存
 						this.earlySingletonObjects.put(beanName, singletonObject);
 						this.singletonFactories.remove(beanName);
 					}
@@ -205,7 +221,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
+		// 开始创建bean时加锁
 		synchronized (this.singletonObjects) {
+			// 再次从缓存中获取，有直接返回，出现有的情况
+			// 1.线程一正在创建A实例，线程二尝试获取，被同步锁阻塞
+			// 2.线程一创建完毕，线程二进入同步代码块，从缓存中获取直接返回
 			Object singletonObject = this.singletonObjects.get(beanName);
 			if (singletonObject == null) {
 				if (this.singletonsCurrentlyInDestruction) {
@@ -216,6 +236,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				// 标记正在创建中
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -223,6 +244,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 调用回调函数获取到bean
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -246,9 +268,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// 清理状态
 					afterSingletonCreation(beanName);
 				}
 				if (newSingleton) {
+					// 将创建的bean添加到单例缓存池中,并移除二三级缓存
 					addSingleton(beanName, singletonObject);
 				}
 			}

@@ -871,12 +871,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
+		// 循环所有beanDefinition
 		for (String beanName : beanNames) {
+			// 将beanDefinition转化为RootBeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// 不是抽象类并且是单例并且非懒加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// 是否为工厂bean
 				if (isFactoryBean(beanName)) {
+					// 由于是以&开头获取bean,这里返回的是一个工厂bean，并且不会调用getObject方法
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
+						// 判断是否要立即初始化bean
 						FactoryBean<?> factory = (FactoryBean<?>) bean;
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
@@ -889,17 +895,21 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
 						if (isEagerInit) {
+							// 以为&开头的方式再获取一次，此时会调用FactoryBean的getObject()方法
 							getBean(beanName);
 						}
 					}
 				}
 				else {
+					// 不是FactoryBean，直接使用getBean进行初始化
 					getBean(beanName);
 				}
 			}
 		}
 
 		// Trigger post-initialization callback for all applicable beans...
+		// 在bean完全创建完毕后，如果bean实现了SmartInitializingSingleton接口
+		// 则回调afterSingletonsInstantiated方法
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
 			if (singletonInstance instanceof SmartInitializingSingleton) {
@@ -1224,6 +1234,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
 					descriptor, requestingBeanName);
 			if (result == null) {
+				// 获取bean
 				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
 			}
 			return result;
@@ -1242,6 +1253,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 
 			Class<?> type = descriptor.getDependencyType();
+			// 解析@Value注解
 			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
 			if (value != null) {
 				if (value instanceof String) {
@@ -1266,10 +1278,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (multipleBeans != null) {
 				return multipleBeans;
 			}
-
+			// 根据类型寻找是否有匹配的beanDefinition
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
 			if (matchingBeans.isEmpty()) {
+				// 为空则判断是否必须
 				if (isRequired(descriptor)) {
+					// 必须则抛出NoSuchBeanDefinitionException异常
 					raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
 				}
 				return null;
@@ -1277,10 +1291,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 			String autowiredBeanName;
 			Object instanceCandidate;
-
+			// 如果根据类型匹配出来的候选bean不止一个，则需要确认是哪一个
 			if (matchingBeans.size() > 1) {
+				// 确认出真正需要依赖的
+				// 先判断是否有@Primary注解的
+				// 没有再判断是否有实现了Priority注解的，取值最小的
+				// 没有最后使用属性名进行匹配
+				// 匹配不到则返回null
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
 				if (autowiredBeanName == null) {
+					// 这里进行确认是否必须，必须则抛出异常
 					if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
 						return descriptor.resolveNotUnique(descriptor.getResolvableType(), matchingBeans);
 					}
@@ -1304,6 +1324,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				autowiredBeanNames.add(autowiredBeanName);
 			}
 			if (instanceCandidate instanceof Class) {
+				// 调用getBean方法
 				instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);
 			}
 			Object result = instanceCandidate;
@@ -1740,7 +1761,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			catch (NoSuchBeanDefinitionException ex) {
 				// Bean definition got removed while we were iterating -> ignore.
 			}
-		}
+			}
 
 		BeanFactory parent = getParentBeanFactory();
 		if (parent instanceof DefaultListableBeanFactory) {

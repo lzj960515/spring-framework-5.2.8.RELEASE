@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Order(2)
-@Component
+//@Component
 public class AOrder {
 
 	static {

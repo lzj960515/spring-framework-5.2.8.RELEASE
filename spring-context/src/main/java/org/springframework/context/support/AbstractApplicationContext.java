@@ -541,8 +541,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				//注册上一步解析出来的所有的BeanPostProcessor
-				//注册逻辑和上一步大致相同，PriorityOrdered-> Ordered -> 普通的
+				// 注册上一步解析出来的所有的BeanPostProcessor
+				// 注册逻辑和上一步大致相同，PriorityOrdered-> Ordered -> 普通的
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -550,7 +550,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
-				//初始事件多播器
+				// 初始事件多播器
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
@@ -560,6 +560,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// 实例化剩余的单例bean
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
@@ -890,9 +891,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.setTempClassLoader(null);
 
 		// Allow for caching all bean definition metadata, not expecting further changes.
+		// 冻结并缓存所有BeanDefinition
 		beanFactory.freezeConfiguration();
 
 		// Instantiate all remaining (non-lazy-init) singletons.
+		// 将所有非懒加载的bean加载到容器中
 		beanFactory.preInstantiateSingletons();
 	}
 

@@ -107,8 +107,11 @@ public class InjectionMetadata {
 		Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());
 		for (InjectedElement element : this.injectedElements) {
 			Member member = element.getMember();
+			// 检查该beanDefinition是否已经包含该成员（属性或者方法）
 			if (!beanDefinition.isExternallyManagedConfigMember(member)) {
+				// 不包含则将该成员注册
 				beanDefinition.registerExternallyManagedConfigMember(member);
+				// 加入到已检查的集合
 				checkedElements.add(element);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Registered injected element on class [" + this.targetClass.getName() + "]: " + element);
@@ -119,6 +122,7 @@ public class InjectionMetadata {
 	}
 
 	public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+		// 取出之前去重过的元数据列表
 		Collection<InjectedElement> checkedElements = this.checkedElements;
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
@@ -127,6 +131,7 @@ public class InjectionMetadata {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
+				// 进行属性或方法装配
 				element.inject(target, beanName, pvs);
 			}
 		}
@@ -236,6 +241,7 @@ public class InjectionMetadata {
 			if (this.isField) {
 				Field field = (Field) this.member;
 				ReflectionUtils.makeAccessible(field);
+				// 调用getResourceToInject获取到依赖的bean装配到属性中
 				field.set(target, getResourceToInject(target, requestingBeanName));
 			}
 			else {
@@ -245,6 +251,7 @@ public class InjectionMetadata {
 				try {
 					Method method = (Method) this.member;
 					ReflectionUtils.makeAccessible(method);
+					// 调用方法
 					method.invoke(target, getResourceToInject(target, requestingBeanName));
 				}
 				catch (InvocationTargetException ex) {

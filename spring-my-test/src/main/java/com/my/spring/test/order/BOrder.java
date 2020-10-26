@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Order(1)
-@Component
+//@Component
 public class BOrder {
 
 	static {
