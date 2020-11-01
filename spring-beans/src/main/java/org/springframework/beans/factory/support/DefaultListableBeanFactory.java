@@ -1278,7 +1278,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (multipleBeans != null) {
 				return multipleBeans;
 			}
-			// 根据类型寻找是否有匹配的beanDefinition
+			// 根据类型寻找是否有匹配的beanDefinition 如果有@Qualifier注解则会过滤一遍
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
 			if (matchingBeans.isEmpty()) {
 				// 为空则判断是否必须

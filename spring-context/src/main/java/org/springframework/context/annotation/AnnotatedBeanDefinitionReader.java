@@ -252,19 +252,19 @@ public class AnnotatedBeanDefinitionReader {
 	private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name,
 			@Nullable Class<? extends Annotation>[] qualifiers, @Nullable Supplier<T> supplier,
 			@Nullable BeanDefinitionCustomizer[] customizers) {
-		//将class封装到bean定义中，AnnotatedGenericBeanDefinition标识为自己传入的bean和@Import导入的bean
+		// 将class封装到bean定义中，AnnotatedGenericBeanDefinition标识为自己传入的bean和@Import导入的bean
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
-		//由于配置类并未使用@Conditional注解，shouldSkip为false
+		// 由于配置类并未使用@Conditional注解，shouldSkip为false
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
 
 		abd.setInstanceSupplier(supplier);
-		//解析bean定义的作用域
+		// 解析bean定义的作用域
 		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
 		abd.setScope(scopeMetadata.getScopeName());
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
-		//处理普通的bean定义注解，@Lazy @Primary @DependsOn @Role @Description
+		// 处理普通的bean定义注解，@Lazy @Primary @DependsOn @Role @Description
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
@@ -286,9 +286,9 @@ public class AnnotatedBeanDefinitionReader {
 		}
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
-		//根据scopeMetadata中的proxy-mode属性判断是否需要进行代理封装，默认否
+		// 根据scopeMetadata中的proxy-mode属性判断是否需要进行代理封装，默认否
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
-		//将bean定义注册到容器中
+		// 将bean定义注册到容器中
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 

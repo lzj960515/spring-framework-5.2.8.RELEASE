@@ -1,6 +1,5 @@
-package com.my.spring.test;
+package com.my.spring.test.test;
 
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.my.spring.test;
+package com.my.spring.test.test;
 
 import org.springframework.beans.factory.FactoryBean;
 

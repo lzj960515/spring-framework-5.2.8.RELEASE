@@ -46,8 +46,7 @@ public class QuickStart extends SuperQuickStart{
 //		System.out.println(wheel);
 		// 加上&前缀则返回工厂bean，且该bean必须是个工厂bean，普通bean则抛出异常
 //		System.out.println(context.getBean("instanceBFactory"));
-//		System.out.println(context.getBean("bananaFactory"));
-//		System.out.println("aaaaaaa");
+//		System.out.println(context.getBean("&bananaFactory"));
 		System.out.println(context.getBean("beanByType"));
 		context.close();
 	}

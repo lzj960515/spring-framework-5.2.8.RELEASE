@@ -10,7 +10,7 @@ import javax.annotation.Priority;
  * @since
  */
 //@Primary
-@Priority(value = 1)
+//@Priority(value = 1)
 @Component
 public class DependClass implements Depend{
 }

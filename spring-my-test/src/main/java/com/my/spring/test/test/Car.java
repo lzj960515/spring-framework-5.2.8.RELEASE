@@ -1,4 +1,4 @@
-package com.my.spring.test;
+package com.my.spring.test.test;
 
 import com.my.spring.test.factory.Wheel;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -12,13 +12,9 @@ import javax.annotation.Priority;
  * @since
  */
 //@Primary
-@Priority(value = 0)
+//@Priority(value = 0)
 @Component
-public class DependBean implements Depend, PriorityOrdered {
-	@Override
-	public int getOrder() {
-		return 0;
-	}
+public class DependBean implements Depend {
 
 //	public InjectionTest injectionTest = new InjectionTest();
 }

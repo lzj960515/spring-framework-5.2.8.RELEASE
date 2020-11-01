@@ -1,8 +1,7 @@
-package com.my.spring.test;
+package com.my.spring.test.test;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Zijian Liao
