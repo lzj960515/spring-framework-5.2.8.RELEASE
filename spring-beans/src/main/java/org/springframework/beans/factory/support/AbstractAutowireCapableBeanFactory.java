@@ -622,11 +622,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
 			}
 		}
-
+		// 是否允许暴露早期对象
 		if (earlySingletonExposure) {
+			// 从缓存池中获取早期对象
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
+				// bean为初始化前的对象，exposedObject为初始化后的对象
+				// 判断两对象是否相等
 				if (exposedObject == bean) {
+					// 将早期对象赋给exposedObject
 					exposedObject = earlySingletonReference;
 				}
 				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
@@ -979,6 +983,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
 		Object exposedObject = bean;
 		// 第四次
+		// 调用BeanPostProcessor对早期对象进行处理，在Spring的内置处理器中，并无相关的处理逻辑
+		// 如果开启了AOP，将引入一个AnnotationAwareAspectJAutoProxyCreator,此时将可能对Bean进行动态代理
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
@@ -1161,6 +1167,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		for (BeanPostProcessor bp : getBeanPostProcessors()) {
 			if (bp instanceof InstantiationAwareBeanPostProcessor) {
 				InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+				// 调用AbstractAutoProxyCreator.postProcessBeforeInstantiation解析切面
 				Object result = ibp.postProcessBeforeInstantiation(beanClass, beanName);
 				if (result != null) {
 					return result;

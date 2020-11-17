@@ -98,6 +98,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 		if (factory.isSingleton() && containsSingleton(beanName)) {
 			// 加锁，防止多线程时重复创建bean
 			synchronized (getSingletonMutex()) {
+				// 这里是Double Check
 				Object object = this.factoryBeanObjectCache.get(beanName);
 				if (object == null) {
 					// 获取bean，调用factoryBean的getObject()

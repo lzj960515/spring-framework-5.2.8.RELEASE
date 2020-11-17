@@ -99,7 +99,7 @@ public class AspectMetadata implements Serializable {
 		}
 		this.aspectClass = ajType.getJavaClass();
 		this.ajType = ajType;
-
+		// ajType.getPerClause()将解析@AspectJ实时返回一个PerClauseImpl,@AspectJ未设值时Kind为SINGLETON
 		switch (this.ajType.getPerClause().getKind()) {
 			case SINGLETON:
 				this.perClausePointcut = Pointcut.TRUE;

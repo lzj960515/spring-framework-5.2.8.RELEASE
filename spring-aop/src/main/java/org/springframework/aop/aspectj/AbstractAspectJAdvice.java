@@ -167,11 +167,17 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, AspectInstanceFactory aspectInstanceFactory) {
 
 		Assert.notNull(aspectJAdviceMethod, "Advice method must not be null");
+		// 类
 		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
+		// 方法名
 		this.methodName = aspectJAdviceMethod.getName();
+		// 参数
 		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
+		// 方法
 		this.aspectJAdviceMethod = aspectJAdviceMethod;
+		// 切点
 		this.pointcut = pointcut;
+		// beanFactory
 		this.aspectInstanceFactory = aspectInstanceFactory;
 	}
 

@@ -5,8 +5,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * 测试是否构建成功
@@ -16,6 +18,7 @@ import org.springframework.context.annotation.Lazy;
  */
 @ComponentScan(basePackages = {"com.my.spring.test"})
 @Configuration
+@EnableAspectJAutoProxy
 //@Import(value = {Bus.class})
 public class QuickStart extends SuperQuickStart{
 

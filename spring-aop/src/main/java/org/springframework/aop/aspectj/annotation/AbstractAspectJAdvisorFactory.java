@@ -131,6 +131,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@Nullable
 	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
 		for (Class<?> clazz : ASPECTJ_ANNOTATION_CLASSES) {
+			// 查找Pointcut, Around, Before, After, AfterReturning, AfterThrowing 注解
 			AspectJAnnotation<?> foundAnnotation = findAnnotation(method, (Class<Annotation>) clazz);
 			if (foundAnnotation != null) {
 				return foundAnnotation;
@@ -143,6 +144,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	private static <A extends Annotation> AspectJAnnotation<A> findAnnotation(Method method, Class<A> toLookFor) {
 		A result = AnnotationUtils.findAnnotation(method, toLookFor);
 		if (result != null) {
+			// 将注解解析并封装
 			return new AspectJAnnotation<>(result);
 		}
 		else {
@@ -191,8 +193,10 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
 		public AspectJAnnotation(A annotation) {
 			this.annotation = annotation;
+			// 确认注解的类型 AspectJAnnotationType（AtBefore,AtAfter等）
 			this.annotationType = determineAnnotationType(annotation);
 			try {
+				// 解析注解上的切点表达式
 				this.pointcutExpression = resolveExpression(annotation);
 				Object argNames = AnnotationUtils.getValue(annotation, "argNames");
 				this.argumentNames = (argNames instanceof String ? (String) argNames : "");
@@ -212,6 +216,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
 		private String resolveExpression(A annotation) {
 			for (String attributeName : EXPRESSION_ATTRIBUTES) {
+				// 获取注解属性的value或者pointcut的值
 				Object val = AnnotationUtils.getValue(annotation, attributeName);
 				if (val instanceof String) {
 					String str = (String) val;

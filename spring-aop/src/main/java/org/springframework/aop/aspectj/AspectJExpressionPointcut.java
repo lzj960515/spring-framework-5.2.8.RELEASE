@@ -194,7 +194,9 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 			throw new IllegalStateException("Must set property 'expression' before attempting to match");
 		}
 		if (this.pointcutExpression == null) {
+			// 确认类加载器
 			this.pointcutClassLoader = determinePointcutClassLoader();
+			// 创建切点表达式
 			this.pointcutExpression = buildPointcutExpression(this.pointcutClassLoader);
 		}
 		return this.pointcutExpression;
@@ -218,12 +220,14 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 	 * Build the underlying AspectJ pointcut expression.
 	 */
 	private PointcutExpression buildPointcutExpression(@Nullable ClassLoader classLoader) {
+		// 初始化切点解析器
 		PointcutParser parser = initializePointcutParser(classLoader);
 		PointcutParameter[] pointcutParameters = new PointcutParameter[this.pointcutParameterNames.length];
 		for (int i = 0; i < pointcutParameters.length; i++) {
 			pointcutParameters[i] = parser.createPointcutParameter(
 					this.pointcutParameterNames[i], this.pointcutParameterTypes[i]);
 		}
+		// 使用切点解析器进行解析表达式获取切点表达式
 		return parser.parsePointcutExpression(replaceBooleanOperators(resolveExpression()),
 				this.pointcutDeclarationScope, pointcutParameters);
 	}
@@ -272,6 +276,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 		PointcutExpression pointcutExpression = obtainPointcutExpression();
 		try {
 			try {
+				// 使用切点表达式进行粗筛
 				return pointcutExpression.couldMatchJoinPointsInType(targetClass);
 			}
 			catch (ReflectionWorldException ex) {
@@ -292,6 +297,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 	@Override
 	public boolean matches(Method method, Class<?> targetClass, boolean hasIntroductions) {
 		obtainPointcutExpression();
+		// 这里将进行第二次筛选
 		ShadowMatch shadowMatch = getTargetShadowMatch(method, targetClass);
 
 		// Special handling for this, target, @this, @target, @annotation
@@ -459,6 +465,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 					Method methodToMatch = targetMethod;
 					try {
 						try {
+							// 调用PointcutExpression进行第二次筛选
 							shadowMatch = obtainPointcutExpression().matchesMethodExecution(methodToMatch);
 						}
 						catch (ReflectionWorldException ex) {

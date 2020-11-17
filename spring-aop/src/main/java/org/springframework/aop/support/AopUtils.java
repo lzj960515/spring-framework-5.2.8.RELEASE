@@ -223,6 +223,7 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		// 第一次筛选，对class筛选判断是否满足匹配条件
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
@@ -246,6 +247,7 @@ public abstract class AopUtils {
 
 		for (Class<?> clazz : classes) {
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
+			// 循环所有方法进行第二次筛选，判断是否有方法满足匹配条件
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
@@ -286,6 +288,7 @@ public abstract class AopUtils {
 		}
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
+			// 判断是否匹配
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {
@@ -318,7 +321,9 @@ public abstract class AopUtils {
 				// already processed
 				continue;
 			}
+			// 判断是否匹配
 			if (canApply(candidate, clazz, hasIntroductions)) {
+				// 加入到合适的advisors集合中
 				eligibleAdvisors.add(candidate);
 			}
 		}

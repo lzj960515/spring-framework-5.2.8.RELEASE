@@ -155,7 +155,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
+			// 单例缓存池中没有该Bean
 			if (!this.singletonObjects.containsKey(beanName)) {
+				// 将singletonFactory放入三级缓存
 				this.singletonFactories.put(beanName, singletonFactory);
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);
@@ -189,14 +191,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			// 所以线程二在这里仍旧无法获取到bean，需要到创建bean时的步骤，那里会再次从一级缓存中获取
 			// 2.发生了循环依赖，由于同步锁的可重入性，此时线程一可进入同步代码块中
 			synchronized (this.singletonObjects) {
-				// 从早期对象缓存池中获取，一般这里不会有值，如果有值表示起码有三层以上依赖关系
-				// A 依赖 B; B 依赖 A,C; C 依赖 A
-				// A创建时将获取A对象函数放到三级缓存中，开始创建B对象
-				// B对象创建时从三级缓存中获取到早期对象A放到二级缓存中，开始创建C对象
-				// C对象创建时从二级缓存得到早期对象A
+				// 从早期对象缓存池中获取，一般这里不会有值，如果有值表示发生了循环依赖
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				if (singletonObject == null && allowEarlyReference) {
-					// 从三级缓存中获取单例工厂
+					// 从三级缓存中获取回调函数
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
 						// 调用回调方法获取早期bean

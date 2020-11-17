@@ -48,6 +48,7 @@ public final class GlobalAdvisorAdapterRegistry {
 	 * adapters.
 	 */
 	static void reset() {
+		// 创建默认的注册器
 		instance = new DefaultAdvisorAdapterRegistry();
 	}
 

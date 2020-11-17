@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.aspectj.lang.reflect.AjTypeSystem;
 import org.aspectj.lang.reflect.PerClauseKind;
 
 import org.springframework.aop.Advisor;
@@ -81,14 +82,16 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @see #isEligibleBean
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
+		// aspectBeanNames有值则说明切面已解析完毕
 		List<String> aspectNames = this.aspectBeanNames;
-
+		// Double Check
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
 				if (aspectNames == null) {
 					List<Advisor> advisors = new ArrayList<>();
 					aspectNames = new ArrayList<>();
+					// 取出是Object子类的bean，其实就是所有的bean
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 					for (String beanName : beanNames) {
@@ -97,18 +100,25 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						// 获得该bean的class
 						Class<?> beanType = this.beanFactory.getType(beanName);
 						if (beanType == null) {
 							continue;
 						}
+						// 判断是否有标识@AspectJ注解
 						if (this.advisorFactory.isAspect(beanType)) {
+							// 将beanName放入集合中
 							aspectNames.add(beanName);
-							AspectMetadata amd = new AspectMetadata(beanType, beanName);
-							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+//							AspectMetadata amd = new AspectMetadata(beanType, beanName);
+
+//							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+							if (AjTypeSystem.getAjType(beanType).getPerClause().getKind() == PerClauseKind.SINGLETON){
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// 通过@Before @After等标识的方法获取到所有的advisor
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
+									// 将获取到的所有advisor放入缓存
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
 								else {
@@ -129,6 +139,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							}
 						}
 					}
+					// 将所有解析过的beanName赋值
 					this.aspectBeanNames = aspectNames;
 					return advisors;
 				}
@@ -138,7 +149,9 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
+		// aspectNames不为空，意味有advisor，取出之前解析好的所有advisor
 		List<Advisor> advisors = new ArrayList<>();
+		// 获取到所有解析好的advisor
 		for (String aspectName : aspectNames) {
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
 			if (cachedAdvisors != null) {

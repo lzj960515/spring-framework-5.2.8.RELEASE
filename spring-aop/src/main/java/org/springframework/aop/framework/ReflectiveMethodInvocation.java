@@ -154,11 +154,22 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		this.arguments = arguments;
 	}
 
-
+	/**
+	 * 切面调用过程 链式递归调用
+	 *
+	 * @return
+	 * @throws Throwable
+	 */
 	@Override
 	@Nullable
 	public Object proceed() throws Throwable {
 		// We start with an index of -1 and increment early.
+		// currentInterceptorIndex 初始值为-1
+		// 当currentInterceptorIndex等于advice的数量减一时，则调用目标方法
+		// 由于advice已排好序，所以调用顺序为before, after, afterReturn, afterThrowing
+		// 注意，并非调用到相应的advice就会执行advice方法，这里是类似递归调用的方式，会存在一个归过程
+		// 有些是递的时候发起调用，如beforeAdvice, 但有些则是归的时候发起调用，如afterAdvice
+		// 递归的终止条件则是这下面这个return invokeJoinpoint();
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			return invokeJoinpoint();
 		}
