@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * @author Zijian Liao
  * @since 1.0.0
  */
-@Primary
+//@Primary
 @Service
 public class AdminService implements IService{
 }

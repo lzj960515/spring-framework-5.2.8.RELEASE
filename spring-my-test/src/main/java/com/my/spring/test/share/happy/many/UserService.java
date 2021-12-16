@@ -10,7 +10,7 @@ import javax.annotation.Priority;
  * @author Zijian Liao
  * @since 1.0.0
  */
-@Priority(1)
+//@Priority(1)
 @Service
 public class UserService implements IService {
 }

@@ -430,6 +430,8 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (resource.isReadable()) {
 					try {
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+						/*AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
+						final boolean isCandidateComponent = metadata.getAnnotations().isDirectlyPresent(Component.class);*/
 						// 调用刚刚配置的过滤器进行匹配，
 						// 默认过滤器逻辑：是否标识了@Component注解（包括组合的，如@Service）
 						if (isCandidateComponent(metadataReader)) {

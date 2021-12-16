@@ -76,6 +76,7 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 		Assert.state(getBeanFactory() instanceof DefaultListableBeanFactory,
 				"BeanFactory needs to be a DefaultListableBeanFactory");
 		final DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) getBeanFactory();
+		// 创建一个TargetSource, getTarget时将会去容器中取出真实的bean
 		TargetSource ts = new TargetSource() {
 			@Override
 			public Class<?> getTargetClass() {

@@ -26,14 +26,14 @@ public class ResourceTest {
 		basePackage = basePackage.replace(".", "/");
 		System.out.println(basePackage);*/
 
-		for (Class aClass : scanClasses("com/my/spring/test")) {
+		for (Class<?> aClass : scanClasses("com/my/spring/test")) {
 			System.out.println(aClass.getName());
 		}
 	}
 
-	public static Set<Class> scanClasses(String basePackage) throws IOException, URISyntaxException, ClassNotFoundException {
+	public static Set<Class<?>> scanClasses(String basePackage) throws IOException, URISyntaxException, ClassNotFoundException {
 		Set<MyResource> myResources = scanPackages(basePackage);
-		Set<Class> classSet = new HashSet<>(myResources.size());
+		Set<Class<?>> classSet = new HashSet<>(myResources.size());
 		for (MyResource myResource : myResources) {
 			String classPath =  myResource.getBasePackage()+"/" + myResource.getFile().getName();
 			String className = classPath.replaceAll("/",".");

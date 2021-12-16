@@ -17,7 +17,13 @@ public class Main {
 
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Main.class);
-		System.out.println(context.getBean("factoryBeanB"));
+//		InstanceB instanceB = context.getBean(InstanceB.class);
+
+//		InstanceA instanceA = context.getBean(InstanceA.class);
+
+//		instanceB.incrementA();
+//		instanceA.sout();
+//		System.out.println(context.getBean("factoryBeanB"));
 //		System.out.println(context.getBean(FactoryBeanB.class));
 
 		// 先创建A对象

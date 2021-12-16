@@ -16,8 +16,8 @@ import java.util.Map;
 @org.springframework.stereotype.Controller
 public class Controller {
 
-//	@Autowired
-//	private IService service;
+	@Resource
+	private IService userService;
 
 	//-------演示依赖查找-------
 	@Autowired
@@ -25,9 +25,9 @@ public class Controller {
 	@Autowired
 	private Map<String,IService> serviceMap;
 
-//	public void printService(){
-//		System.out.println(service);
-//	}
+	public void printService(){
+		System.out.println(userService);
+	}
 
 	public void printServiceList(){
 		services.forEach(System.out::println);

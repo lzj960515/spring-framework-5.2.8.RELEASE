@@ -17,8 +17,8 @@ public class ManyMain {
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ManyMain.class);
 		Controller controller = context.getBean("controller", Controller.class);
-//		controller.printService();
-		controller.printServiceList();
-		controller.printServiceMap();
+		controller.printService();
+//		controller.printServiceList();
+//		controller.printServiceMap();
 	}
 }

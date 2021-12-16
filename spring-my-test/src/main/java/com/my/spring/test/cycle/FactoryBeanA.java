@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author Zijian Liao
  * @since 1.0.0
  */
-@Component
+//@Component
 public class FactoryBeanA implements FactoryBean<NormalBeanA> {
 	@Autowired
 	private ApplicationContext context;
