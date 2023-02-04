@@ -16,9 +16,19 @@ public class InstanceA {
 
 	@Autowired
 	private InstanceB instanceB;
-
+	/*@Autowired
+	private InstanceC instanceC;
+*/
 
 	public InstanceA(){
-		System.out.println("a init! " + Thread.currentThread().getName());
+//		System.out.println("a init! " + Thread.currentThread().getName());
 	}
+
+	public void test(){
+		System.out.println("test");
+	}
+
+	/*public void run(){
+		instanceC.run();
+	}*/
 }

@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
 	public void user(){
 		System.out.println("插入user数据");
 		jdbcTemplate.update("insert into user (name, age) values (?, ?)","jack1", 12);
-		System.out.println(1/0);
+		System.out.println(0);
 		jdbcTemplate.update("insert into user (name, age) values (?, ?)","jack2", 12);
 	}
 }

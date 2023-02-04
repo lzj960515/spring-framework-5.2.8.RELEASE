@@ -131,7 +131,7 @@ class ConstructorResolver {
 		Constructor<?> constructorToUse = null;
 		ArgumentsHolder argsHolderToUse = null;
 		Object[] argsToUse = null;
-
+		// null
 		if (explicitArgs != null) {
 			argsToUse = explicitArgs;
 		}
@@ -147,7 +147,7 @@ class ConstructorResolver {
 					}
 				}
 			}
-			if (argsToResolve != null) {
+			if (argsToResolve != null) {//null
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve, true);
 			}
 		}
@@ -195,7 +195,7 @@ class ConstructorResolver {
 				resolvedValues = new ConstructorArgumentValues();
 				minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 			}
-
+			// 对候选的构造器进行排序，public修饰的构造器优先，参数多的优先
 			AutowireUtils.sortConstructors(candidates);
 			int minTypeDiffWeight = Integer.MAX_VALUE;
 			Set<Constructor<?>> ambiguousConstructors = null;
@@ -207,6 +207,7 @@ class ConstructorResolver {
 				if (constructorToUse != null && argsToUse != null && argsToUse.length > parameterCount) {
 					// Already found greedy constructor that can be satisfied ->
 					// do not look any further, there are only less greedy constructors left.
+					// 如果按照优先级已经实例化成功，则直接退出
 					break;
 				}
 				if (parameterCount < minNrOfArgs) {
@@ -222,6 +223,7 @@ class ConstructorResolver {
 						if (paramNames == null) {
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
 							if (pnd != null) {
+								// 获取构造器参数的名称
 								paramNames = pnd.getParameterNames(candidate);
 							}
 						}
@@ -233,6 +235,7 @@ class ConstructorResolver {
 						if (logger.isTraceEnabled()) {
 							logger.trace("Ignoring constructor [" + candidate + "] of bean '" + beanName + "': " + ex);
 						}
+						// 发生了异常就catch住记录下来
 						// Swallow and try next constructor.
 						if (causes == null) {
 							causes = new LinkedList<>();
@@ -252,6 +255,7 @@ class ConstructorResolver {
 				int typeDiffWeight = (mbd.isLenientConstructorResolution() ?
 						argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
 				// Choose this constructor if it represents the closest match.
+				// 一般来说这里必定为true, 因为minTypeDiffWeight初始值为Integer.MAX_VALUE
 				if (typeDiffWeight < minTypeDiffWeight) {
 					constructorToUse = candidate;
 					argsHolderToUse = argsHolder;
@@ -267,7 +271,7 @@ class ConstructorResolver {
 					ambiguousConstructors.add(candidate);
 				}
 			}
-
+			// 如果没有上面的逻辑全为异常，则这里必然为null, 因为没有可以使用的构造器
 			if (constructorToUse == null) {
 				if (causes != null) {
 					UnsatisfiedDependencyException ex = causes.removeLast();
@@ -730,7 +734,7 @@ class ConstructorResolver {
 		ArgumentsHolder args = new ArgumentsHolder(paramTypes.length);
 		Set<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
 		Set<String> autowiredBeanNames = new LinkedHashSet<>(4);
-
+		// 遍历参数列表
 		for (int paramIndex = 0; paramIndex < paramTypes.length; paramIndex++) {
 			Class<?> paramType = paramTypes[paramIndex];
 			String paramName = (paramNames != null ? paramNames[paramIndex] : "");
@@ -788,6 +792,7 @@ class ConstructorResolver {
 							"] - did you specify the correct bean references as arguments?");
 				}
 				try {
+					// 尝试获取bean
 					Object autowiredArgument = resolveAutowiredArgument(
 							methodParam, beanName, autowiredBeanNames, converter, fallback);
 					args.rawArguments[paramIndex] = autowiredArgument;
@@ -884,6 +889,7 @@ class ConstructorResolver {
 			return injectionPoint;
 		}
 		try {
+			// 获取依赖的bean
 			return this.beanFactory.resolveDependency(
 					new DependencyDescriptor(param, true), beanName, autowiredBeanNames, typeConverter);
 		}

@@ -1,4 +1,4 @@
-package com.my.spring.test.cons;
+package com.my.spring.test.interrupt;
 
 import org.springframework.stereotype.Component;
 
@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Component
-public class InstanceC {
+public class Person {
 }

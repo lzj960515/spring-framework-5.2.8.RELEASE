@@ -302,21 +302,21 @@ class ConfigurationClassParser {
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
 				//这里循环是为了判断扫描出来的beanDefinition是否是配置类，如果是配置类的话需要递归解析
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
-					BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
-					if (bdCand == null) {
-						bdCand = holder.getBeanDefinition();
+					BeanDefinition beanDef = holder.getBeanDefinition().getOriginatingBeanDefinition();
+					if (beanDef == null) {
+						beanDef = holder.getBeanDefinition();
 					}
 					//这里是必然为true, 能被扫描出来的必然有@Component注解，而@Component注解为lite配置类
 					//这里主要是为了在检查的同时设置一下full或者lite的类型
-					if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, this.metadataReaderFactory)) {
+					if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 						//配置类就继续递归解析
-						parse(bdCand.getBeanClassName(), holder.getBeanName());
+						parse(beanDef.getBeanClassName(), holder.getBeanName());
 					}
 				}
 			}
 		}
 
-		// Process any @Import annotations
+		// 处理@Import注解
 		processImports(configClass, sourceClass, getImports(sourceClass), filter, true);
 
 		// Process any @ImportResource annotations
@@ -367,6 +367,7 @@ class ConfigurationClassParser {
 		if (!memberClasses.isEmpty()) {
 			List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
 			for (SourceClass memberClass : memberClasses) {
+				// 判断内部类是否为配置类
 				if (ConfigurationClassUtils.isConfigurationCandidate(memberClass.getMetadata()) &&
 						!memberClass.getMetadata().getClassName().equals(configClass.getMetadata().getClassName())) {
 					candidates.add(memberClass);

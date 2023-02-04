@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
  */
 public class MyApplicationEvent extends ApplicationEvent {
 
+
+	private static final long serialVersionUID = -2893372783180627610L;
 	public String event;
 
 	public MyApplicationEvent(Object source) {

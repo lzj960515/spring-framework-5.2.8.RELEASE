@@ -1,6 +1,7 @@
 package com.my.spring.test.share.bean;
 
 import com.my.spring.test.share.event.MyApplicationEvent;
+import com.my.spring.test.share.factory.Girl;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -15,6 +16,9 @@ public class Main {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MyConfiguration.class);
 //		System.out.println(context.getBean("myBean"));
 		context.publishEvent(new MyApplicationEvent("张三放了个屁"));
+
+		Girl girl = context.getBean("girl", Girl.class);
+		System.out.println(girl);
 		context.close();
 	}
 }

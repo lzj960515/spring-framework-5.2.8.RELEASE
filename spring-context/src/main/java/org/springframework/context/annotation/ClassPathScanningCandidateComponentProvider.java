@@ -429,16 +429,18 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				}
 				if (resource.isReadable()) {
 					try {
+						// 该步骤进行解析class文件
+						// new CachingMetadataReaderFactory().getMetadataReader(resource)
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
 						/*AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
 						final boolean isCandidateComponent = metadata.getAnnotations().isDirectlyPresent(Component.class);*/
 						// 调用刚刚配置的过滤器进行匹配，
 						// 默认过滤器逻辑：是否标识了@Component注解（包括组合的，如@Service）
 						if (isCandidateComponent(metadataReader)) {
-							// 通过扫描方式创建的BeanDefintion为ScannedGenericBeanDefinition
+							// 通过扫描方式创建的BeanDefinition为ScannedGenericBeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setSource(resource);
-							// 不是接口和抽象类,或者是抽象类但标识了@Lookup
+							// 不是接口和抽象类,或者是抽象类但标识了@Lookup, Mybatis重写了该方法
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);
@@ -503,6 +505,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		}
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
+				// 如果符合还需再判断该类是否满足Conditional相关信息
 				return isConditionMatch(metadataReader);
 			}
 		}

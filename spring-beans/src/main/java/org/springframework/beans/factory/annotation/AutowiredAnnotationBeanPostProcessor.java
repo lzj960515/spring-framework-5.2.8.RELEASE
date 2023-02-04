@@ -257,6 +257,10 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		this.injectionMetadataCache.remove(beanName);
 	}
 
+	// 确认候选的构造器，三种：1.空构造器 2.加了Autowired注解的 3.类里面只有一个构造器, 1 3两点相互矛盾
+	// 逻辑如下，找寻类中是否有表示Autowired注解的构造器。如果有，判断类是否有空构造器，将空构造器也加入候选的构造器中
+	// 如果没有，则判断类里面是否只有一个构造器，并且参数大于0，如果还是没有，则返回null
+	// 返回null之后spring兜底使用空构造器实例化
 	@Override
 	@Nullable
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
@@ -328,6 +332,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						// 是否带有@Autowired注解
 						MergedAnnotation<?> ann = findAutowiredAnnotation(candidate);
 						if (ann == null) {
+							// 判断是不是cglib代理，再来一次
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
 								try {
@@ -340,7 +345,12 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								}
 							}
 						}
+
 						if (ann != null) {
+							// 以下两个if语句的含义：一个类里面如果有了一个Autowired(required=true)的构造器，
+							// 那就不能有其他的加了Autowired注解的构造器，Autowired(required=false)也不行
+							// 但是一个类里可以有多个Autowired(required=false)的构造器
+
 							// 是否已经有@Autowired(required=ture)标识的构造器
 							if (requiredConstructor != null) {
 								throw new BeanCreationException(beanName,
@@ -365,10 +375,16 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							defaultConstructor = candidate;
 						}
 					}
+
+					// 以下逻辑说明此时存在一个Autowired(required=false)的构造器和一个空构造器
+					// 存在候选的构造器（Autowired标识的）
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
+						// 如果没有Autowired(required=true)标识的构造器
 						if (requiredConstructor == null) {
+							// 存在默认的构造器
 							if (defaultConstructor != null) {
+								// 将默认的构造器加入候选的构造器中
 								candidates.add(defaultConstructor);
 							}
 							else if (candidates.size() == 1 && logger.isInfoEnabled()) {
@@ -380,6 +396,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						}
 						candidateConstructors = candidates.toArray(new Constructor<?>[0]);
 					}
+					// 走到这里，说明一遍循环下来，没有加了个Autowired注解的构造器，也没有空构造器
+					// 如果类里只有一个构造器
 					else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
 						candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
 					}
@@ -472,7 +490,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	}
 
 	private InjectionMetadata buildAutowiringMetadata(final Class<?> clazz) {
-		// 判断是否是候选的class
+		// 判断是否是候选的class，除了java打头和Ordered类，其他都是true
 		if (!AnnotationUtils.isCandidateClass(clazz, this.autowiredAnnotationTypes)) {
 			return InjectionMetadata.EMPTY;
 		}

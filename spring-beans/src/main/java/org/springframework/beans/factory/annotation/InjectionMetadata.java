@@ -111,7 +111,7 @@ public class InjectionMetadata {
 			if (!beanDefinition.isExternallyManagedConfigMember(member)) {
 				// 不包含则将该成员注册
 				beanDefinition.registerExternallyManagedConfigMember(member);
-				// 加入到已检查的集合
+				// 加入到已检查的集合，已检查的集合中的元素必然是不重复的
 				checkedElements.add(element);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Registered injected element on class [" + this.targetClass.getName() + "]: " + element);
